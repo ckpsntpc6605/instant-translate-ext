@@ -4,24 +4,33 @@
   "version": "1.0.0",
   "description": "Select text on any page and translate it using a local TranslateGemma model via Ollama.",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs"
   ],
   "host_permissions": [
     "http://localhost:11434/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/index.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["lib/languages.js", "content.js"],
+      "js": [
+        "constants/constants.js",
+        "constants/languages.js",
+        "content/core.js",
+        "content/translate.js",
+        "content/tooltip.js",
+        "content/bilingual.js",
+        "content/index.js"
+      ],
       "css": ["content.css"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "popup/popup.html",
+    "default_popup": "popup/index.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

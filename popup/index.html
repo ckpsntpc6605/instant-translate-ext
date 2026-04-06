@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
   <div class="header">
@@ -39,6 +39,18 @@
     </label>
   </div>
 
+  <div class="section">
+    <div class="section-title">Bilingual Mode</div>
+    <label class="toggle-row">
+      <span class="toggle-label">Translate all paragraphs on page</span>
+      <div class="toggle-track">
+        <input type="checkbox" id="bilingual-toggle" class="toggle-input">
+        <span class="toggle-thumb"></span>
+      </div>
+    </label>
+    <p class="toggle-hint" id="bilingual-hint"></p>
+  </div>
+
   <div class="section usage">
     <div class="section-title">How to Use</div>
     <ol>
@@ -51,7 +63,8 @@
 
   <div class="footer">Powered by Ollama + TranslateGemma</div>
 
-  <script src="../lib/languages.js"></script>
-  <script src="popup.js"></script>
+  <script src="../constants/constants.js"></script>
+  <script src="../constants/languages.js"></script>
+  <script src="index.js"></script>
 </body>
 </html>

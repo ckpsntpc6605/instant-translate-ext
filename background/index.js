@@ -1,5 +1,4 @@
 const OLLAMA_BASE = 'http://localhost:11434';
-
 const DEFAULT_MODEL = 'translategemma:latest';
 const TRANSLATEGEMMA_PREFIX = 'translategemma';
 
@@ -27,9 +26,7 @@ const handleTranslate = async ({ text, sourceLang, sourceName, targetLang, targe
       body: buildChatBody(model || DEFAULT_MODEL, prompt)
     });
 
-    if (!response.ok) {
-      throw new Error(`Ollama returned status ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Ollama returned status ${response.status}`);
 
     const data = await response.json();
     return { success: true, translation: data.message.content.trim() };
@@ -37,10 +34,6 @@ const handleTranslate = async ({ text, sourceLang, sourceName, targetLang, targe
     return { success: false, error: err.message };
   }
 };
-
-// Pure: check if a model exists in the model list
-const modelExists = (models, name) =>
-  models.some((m) => m.name === name || m.name === `${name}:latest`);
 
 // Pure: extract translategemma models from list
 const filterTranslateGemmaModels = (models) =>
@@ -56,7 +49,6 @@ const handleCheckConnection = async (selectedModel) => {
 
     const { models } = await res.json();
     const availableModels = filterTranslateGemmaModels(models);
-    const modelName = selectedModel || DEFAULT_MODEL;
 
     return {
       connected: true,
@@ -68,7 +60,7 @@ const handleCheckConnection = async (selectedModel) => {
   }
 };
 
-// Message router — the only side-effectful entry point
+// Message router
 const messageHandlers = Object.freeze({
   translate: (message) => handleTranslate(message),
   'check-connection': (message) => handleCheckConnection(message.model)
