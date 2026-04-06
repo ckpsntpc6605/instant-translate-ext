@@ -1,6 +1,7 @@
 const OLLAMA_BASE = 'http://localhost:11434';
 
 const DEFAULT_MODEL = 'translategemma:latest';
+const TRANSLATEGEMMA_PREFIX = 'translategemma';
 
 // Pure: build translation prompt from parameters
 const buildPrompt = ({ text, sourceLang, sourceName, targetLang, targetName }) =>
@@ -44,22 +45,23 @@ const modelExists = (models, name) =>
 // Pure: extract translategemma models from list
 const filterTranslateGemmaModels = (models) =>
   models
-    .filter((m) => m.name.startsWith('translategemma'))
+    .filter((m) => m.name.startsWith(TRANSLATEGEMMA_PREFIX))
     .map((m) => m.name);
 
-// Side-effect: check Ollama connection and model availability
+// Side-effect: check Ollama connection and return all available translategemma models
 const handleCheckConnection = async (selectedModel) => {
   try {
     const res = await fetch(`${OLLAMA_BASE}/api/tags`);
     if (!res.ok) throw new Error('Not OK');
 
     const { models } = await res.json();
+    const availableModels = filterTranslateGemmaModels(models);
     const modelName = selectedModel || DEFAULT_MODEL;
 
     return {
       connected: true,
-      modelAvailable: modelExists(models, modelName),
-      availableModels: filterTranslateGemmaModels(models)
+      modelAvailable: availableModels.length > 0,
+      availableModels
     };
   } catch {
     return { connected: false, modelAvailable: false, availableModels: [] };

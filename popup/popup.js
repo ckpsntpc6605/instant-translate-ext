@@ -15,7 +15,7 @@ const elements = Object.freeze({
 const DEFAULT_SETTINGS = Object.freeze({
   sourceLang: 'auto',
   targetLang: 'zh-Hant',
-  model: 'translategemma:latest'
+  model: ''
 });
 
 // ── Pure helpers ──
@@ -35,25 +35,42 @@ const createOption = (value, text) => {
 
 // ── DOM rendering ──
 
-const populateSelect = (select, languages, formatter) =>
-  languages.forEach((lang) =>
-    select.appendChild(createOption(lang.code, formatter(lang)))
-  );
+const populateSelect = (select, items, formatter) =>
+  items.forEach((item) => select.appendChild(formatter(item)));
 
-const renderStatus = ({ connected, modelAvailable }, selectedModel) => {
+const populateModelSelect = (select, availableModels, savedModel) => {
+  select.innerHTML = '';
+
+  if (availableModels.length === 0) {
+    select.appendChild(createOption('', 'No model found'));
+    return;
+  }
+
+  availableModels.forEach((name) => select.appendChild(createOption(name, name)));
+
+  // Restore saved model if still available, otherwise use first found
+  select.value = availableModels.includes(savedModel)
+    ? savedModel
+    : availableModels[0];
+
+  saveSetting('model', select.value);
+};
+
+const renderStatus = ({ connected, modelAvailable, availableModels = [] }, savedModel) => {
   const { statusDot, statusText, modelRow, modelDot, modelText } = elements;
 
   statusDot.className = `status-dot ${connected ? 'connected' : 'disconnected'}`;
   statusText.textContent = connected ? 'Ollama connected' : 'Ollama not detected';
-
   modelRow.style.display = connected ? 'flex' : 'none';
 
-  if (connected) {
-    modelDot.className = `status-dot ${modelAvailable ? 'connected' : 'disconnected'}`;
-    modelText.textContent = modelAvailable
-      ? `${selectedModel} available`
-      : `${selectedModel} not found — run: ollama pull ${selectedModel}`;
-  }
+  if (!connected) return;
+
+  populateModelSelect(elements.modelSelect, availableModels, savedModel);
+
+  modelDot.className = `status-dot ${modelAvailable ? 'connected' : 'disconnected'}`;
+  modelText.textContent = modelAvailable
+    ? `${elements.modelSelect.value} ready`
+    : 'No translategemma model found — run: ollama pull translategemma';
 };
 
 const renderLoading = () => {
@@ -70,34 +87,32 @@ const saveSetting = (key, value) =>
 
 const checkConnection = () => {
   renderLoading();
-  const selectedModel = elements.modelSelect.value;
-
-  chrome.runtime.sendMessage(
-    { type: 'check-connection', model: selectedModel },
-    (res) => renderStatus(res || { connected: false, modelAvailable: false }, selectedModel)
-  );
+  chrome.storage.sync.get(DEFAULT_SETTINGS, ({ model }) => {
+    chrome.runtime.sendMessage(
+      { type: 'check-connection', model },
+      (res) => renderStatus(res || { connected: false, modelAvailable: false }, model)
+    );
+  });
 };
 
 // ── Initialize ──
 
-// Populate dropdowns
 populateSelect(
   elements.sourceSelect,
   TRANSLATE_LANGUAGES,
-  formatSourceLabel
+  ({ code, name }) => createOption(code, formatSourceLabel({ code, name }))
 );
 
 populateSelect(
   elements.targetSelect,
   TRANSLATE_LANGUAGES.filter((l) => l.code !== 'auto'),
-  formatTargetLabel
+  ({ code, name }) => createOption(code, formatTargetLabel({ code, name }))
 );
 
-// Load saved settings and apply
-chrome.storage.sync.get(DEFAULT_SETTINGS, ({ sourceLang, targetLang, model }) => {
+// Load saved language settings
+chrome.storage.sync.get(DEFAULT_SETTINGS, ({ sourceLang, targetLang }) => {
   elements.sourceSelect.value = sourceLang;
   elements.targetSelect.value = targetLang;
-  elements.modelSelect.value = model;
 });
 
 // Attach event listeners
