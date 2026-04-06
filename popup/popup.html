@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1>TranslateGemma</h1>
+    <span class="version">v1.0.0</span>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Connection Status</div>
+    <div class="status-row">
+      <span id="status-dot" class="status-dot disconnected"></span>
+      <span id="status-text">Checking...</span>
+    </div>
+    <div class="status-row" id="model-row" style="display:none">
+      <span id="model-dot" class="status-dot"></span>
+      <span id="model-text"></span>
+    </div>
+    <button id="btn-check" class="btn">Check Connection</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Translation Settings</div>
+    <label class="field">
+      <span>Source Language</span>
+      <select id="source-lang"></select>
+    </label>
+    <label class="field">
+      <span>Target Language</span>
+      <select id="target-lang"></select>
+    </label>
+    <label class="field">
+      <span>Model</span>
+      <select id="model-select">
+        <option value="translategemma:latest">translategemma:latest (3.3 GB)</option>
+        <option value="translategemma:4b">translategemma:4b (3.3 GB)</option>
+        <option value="translategemma:12b">translategemma:12b (8.1 GB)</option>
+        <option value="translategemma:27b">translategemma:27b (17 GB)</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="section usage">
+    <div class="section-title">How to Use</div>
+    <ol>
+      <li>Make sure Ollama is running with TranslateGemma</li>
+      <li>Select text on any webpage</li>
+      <li>Click the red dot that appears</li>
+      <li>View the translation</li>
+    </ol>
+  </div>
+
+  <div class="footer">Powered by Ollama + TranslateGemma</div>
+
+  <script src="../lib/languages.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
